@@ -6,8 +6,6 @@
 #include <conio.h>
 using namespace std;
 
-
-
 //subject claas
 
 class Subject{
@@ -155,7 +153,10 @@ public:
         cout<<setw(5)<<"id"<<setw(20)<<"name"<<setw(5)<<"age"<<setw(30)<<"address"<<endl<<endl;
         while(true){
             allstu>>stuid>>stuname>>stuage>>stuaddress;
-            if(allstu.good()){
+            if(stuname == "x"){
+                continue;
+            }
+            else if(allstu.good()){
                 cout<<setw(5)<<stuid<<setw(20)<<stuname<<setw(5)<<stuage<<setw(30)<<stuaddress<<endl;
                 cout<<setw(75)<<" subjects : "<<endl;
                 getStudentSubjects(stuid);
@@ -189,22 +190,57 @@ public:
                     cout<<setw(75)<<" subjects : "<<endl;
                     getStudentSubjects(stuid);
                     cout<<"----------------------------------------------------------------------------------"<<endl;
-
                 }
 
             }else{
                 break;
             }
-
-
         }
 
         getanykey();
-
-
     }
 
     void deleteStudent(int s_id){
+
+        int pos = 0;
+        fstream alstu;
+        alstu.open("alstu.txt",ios::out|ios::in);
+        while(alstu){
+        alstu>>stuid>>stuname>>stuage>>stuaddress;
+        if(stuid == s_id){
+            if(alstu.good()){
+                alstu.seekp(pos,ios::beg);
+                alstu<<setw(5)<<0<<setw(20)<<"x"<<setw(3)<<0<<setw(30)<<"x"<<endl;
+                break;
+            }
+        }
+        pos = pos+60;
+	}
+	alstu.close();
+
+    }
+
+    void updateStudent(int s_id){
+
+        int pos = 0;
+        fstream alstu;
+        alstu.open("alstu.txt",ios::out|ios::in);
+        while(alstu){
+        alstu>>stuid>>stuname>>stuage>>stuaddress;
+        if(stuid == s_id){
+            if(alstu.good()){
+
+                cout<<"old name : "<<stuname<<" -> new name :";cin>>stuname;
+                cout<<"old address : "<<stuaddress<<" -> new address :";cin>>stuaddress;
+
+                alstu.seekp(pos,ios::beg);
+                alstu<<setw(5)<<stuid<<setw(20)<<stuname<<setw(3)<<stuage<<setw(30)<<stuaddress<<endl;
+                break;
+            }
+        }
+        pos = pos+60;
+	}
+	alstu.close();
 
     }
 
@@ -252,9 +288,9 @@ public:
         while(true){
         system("cls");
         int choice;
-        cout<<"\n\n 1.add new student\n 2.find student \n 3.delete student \n";
-        cout<<" 4.add new subject to student\n";
-        cout<<" 5.show all student \n ";
+        cout<<"\n\n 1.add new student\n 2.find student \n 3.delete student \n 4.update student \n";
+        cout<<" 5.add new subject to student\n";
+        cout<<" 6.show all student \n ";
         cout<<"\n\n0.to exit"<<endl;
         cout<<"\n\n choice >>";cin>>choice;
         if(choice == 0){
@@ -265,10 +301,10 @@ public:
             stu.addNew();
             stu.save();
 
-        }else if(choice == 4){
+        }else if(choice == 5){
             Student stu;
             stu.addSubject();
-        }else if(choice == 5){
+        }else if(choice == 6){
             Student stu;
             stu.showStudent();
         }else if(choice == 2){
@@ -277,6 +313,18 @@ public:
             cout<<endl;
             Student stu;
             stu.showStudent(s_id);
+        }else if(choice == 3){
+            int s_id;
+            cout<<"enter student id :";cin>>s_id;
+            cout<<endl;
+            Student stu;
+            stu.deleteStudent(s_id);
+        }else if(choice == 4){
+            int s_id;
+            cout<<"enter student id :";cin>>s_id;
+            cout<<endl;
+            Student stu;
+            stu.updateStudent(s_id);
         }
 
         }
