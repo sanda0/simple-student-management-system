@@ -5,7 +5,6 @@
 #include<fstream>
 #include <conio.h>
 using namespace std;
-//subject claas
 class Subject{
 protected:
     int id;
@@ -33,17 +32,17 @@ public:
         cout<<setw(3)<<"id"<<setw(20)<<"name"<<setw(5)<<"fee"<<endl<<endl;
         while(true){
             alsub>>id>>name>>fee;
-            if(name == "x"){
-                continue;
-            }else if(alsub.good()){
+            if(alsub.good() && name != "x"){
                 cout<<setw(3)<<id<<setw(20)<<name<<setw(5)<<fee<<endl;
             }else{
                 break;
             }
         }
+
         alsub.close();
     }
     void deleteSubject(int sub_id){
+
         int pos = 0;
         fstream alsub;
         alsub.open("alsub.txt",ios::out|ios::in);
@@ -92,7 +91,7 @@ public:
         student_subject<<setw(5)<<sid<<setw(3)<<subid<<endl;
         student_subject.close();
     }
-    void getStudentSubjects(int s_id){
+    void getStudentSubjects(int s_id,bool forPayments = false){
         int subid;
         int sid;
         ifstream stu_sub;
@@ -107,7 +106,7 @@ public:
                         subs>>id>>name>>fee;
                         if(subs.good()){
                            if(id == subid){
-                            cout<<setw(85)<<name<<endl;
+                                forPayments?cout<<setw(5)<<id<<setw(15)<<name<<setw(6)<<fee<<endl:cout<<setw(85)<<name<<endl;
                            }
                         }else{
                             break;
@@ -125,14 +124,14 @@ public:
         cout<<setw(5)<<"id"<<setw(20)<<"name"<<setw(5)<<"age"<<setw(30)<<"address"<<endl<<endl;
         while(true){
             allstu>>stuid>>stuname>>stuage>>stuaddress;
-            if(stuname == "x"){
-                continue;
-            }
-            else if(allstu.good()){
-                cout<<setw(5)<<stuid<<setw(20)<<stuname<<setw(5)<<stuage<<setw(30)<<stuaddress<<endl;
-                cout<<setw(75)<<" subjects : "<<endl;
-                getStudentSubjects(stuid);
-                cout<<"----------------------------------------------------------------------------------"<<endl;
+            if(allstu.good()){
+                if(stuname != "x" ){
+                    cout<<setw(5)<<stuid<<setw(20)<<stuname<<setw(5)<<stuage<<setw(30)<<stuaddress<<endl;
+                    cout<<setw(75)<<" subjects : "<<endl;
+                    getStudentSubjects(stuid);
+                    cout<<"----------------------------------------------------------------------------------"<<endl;
+                }
+
             }else{
                 break;
             }
@@ -156,6 +155,7 @@ public:
                 break;
             }
         }
+        allstu.close();
         getanykey();
     }
     void deleteStudent(int s_id){
@@ -195,18 +195,200 @@ public:
 	}
 	alstu.close();
     }
+
+    string getStudentNameById(int s_id){
+        ifstream allstu;
+        allstu.open("alstu.txt",ios::in);
+        while(true){
+            allstu>>stuid>>stuname>>stuage>>stuaddress;
+            if(allstu.good()){
+                if(s_id == stuid){
+                    return stuname;
+                }
+            }else{
+                return "not found";
+                break;
+            }
+        }
+        allstu.close();
+
+    }
+
+    string getSubjectNameById(int sub_id){
+        ifstream alsub;
+        alsub.open("alsub.txt",ios::in);
+        while(true){
+            alsub>>id>>name>>fee;
+            if(alsub.good()){
+                if(sub_id == id){
+                    return name;
+                }
+            }else{
+                return "not found";
+                break;
+            }
+        }
+        alsub.close();
+
+    }
 };
-//menu class
-// this class use for menu
+class Payment:Student{
+    int year;
+    int month;
+    string isPay;
+    int stu_id;
+    int sub_id;
+
+public:
+    void getanykey(){
+        cout<<"\n\n\ press any key to back";getch();
+    }
+
+    void addPayment(){
+        system("cls");
+
+       ofstream payment;
+       payment.open("payment.txt",ios::app);
+
+       cout<<"enter year : ";cin>>year;
+       cout<<"enter month : ";cin>>month;
+       cout<<"enter student id : ";cin>>stu_id;
+       cout<<"("<<getStudentNameById(stu_id)<<")"<<endl;
+       getStudentSubjects(stu_id,true);
+       cout<<"enter subject id : ";cin>>sub_id;
+       cout<<" is pay (y/n) : ";cin>>isPay;
+
+       payment<<setw(5)<<year<<setw(3)<<month<<setw(5)<<stu_id<<setw(4)<<sub_id<<setw(4)<<isPay<<endl;
+
+       payment.close();
+
+
+
+    }
+
+    void findPaymentByYear(){
+        int y;
+        cout<<"enter year : ";cin>>y;
+        ifstream payment;
+        payment.open("payment.txt",ios::in);
+        cout<<setw(8)<<"year"<<setw(8)<<"month"<<setw(20)<<"student"<<setw(20)<<"subject"<<setw(8)<<"Is Pay"<<endl<<endl;
+        while(payment){
+            payment>>year>>month>>stu_id>>sub_id>>isPay;
+            if(payment.good()){
+                if(year==y){
+                    cout<<setw(8)<<year<<setw(8)<<month<<setw(20)<<getStudentNameById(stu_id)<<setw(20)<<getSubjectNameById(sub_id);
+                    if(isPay == "y"){
+                        cout<<setw(8)<<"yes"<<endl;
+                    }else{
+                        cout<<setw(8)<<"no"<<endl;
+                    }
+                }
+            }else{
+                break;
+            }
+
+
+        }
+        getanykey();
+
+    }
+
+    void findPaymentByYearAndMonth(){
+        int y;
+        int m;
+        cout<<"enter year : ";cin>>y;
+        cout<<"enter month : ";cin>>m;
+        ifstream payment;
+        payment.open("payment.txt",ios::in);
+        cout<<setw(8)<<"year"<<setw(8)<<"month"<<setw(20)<<"student"<<setw(20)<<"subject"<<setw(8)<<"Is Pay"<<endl<<endl;
+        while(payment){
+            payment>>year>>month>>stu_id>>sub_id>>isPay;
+            if(payment.good()){
+                if(year==y && month == m){
+                    cout<<setw(8)<<year<<setw(8)<<month<<setw(20)<<getStudentNameById(stu_id)<<setw(20)<<getSubjectNameById(sub_id);
+                    if(isPay == "y"){
+                        cout<<setw(8)<<"yes"<<endl;
+                    }else{
+                        cout<<setw(8)<<"no"<<endl;
+                    }
+                }
+            }else{
+                break;
+            }
+
+
+        }
+        getanykey();
+     }
+
+     void findPaymentByStudent(){
+        int i;
+        cout<<"enter student id : ";cin>>i;
+        ifstream payment;
+        payment.open("payment.txt",ios::in);
+        cout<<setw(8)<<"year"<<setw(8)<<"month"<<setw(20)<<"student"<<setw(20)<<"subject"<<setw(8)<<"Is Pay"<<endl<<endl;
+        while(payment){
+            payment>>year>>month>>stu_id>>sub_id>>isPay;
+            if(payment.good()){
+                if(stu_id == i){
+                    cout<<setw(8)<<year<<setw(8)<<month<<setw(20)<<getStudentNameById(stu_id)<<setw(20)<<getSubjectNameById(sub_id);
+                    if(isPay == "y"){
+                        cout<<setw(8)<<"yes"<<endl;
+                    }else{
+                        cout<<setw(8)<<"no"<<endl;
+                    }
+                }
+            }else{
+                break;
+            }
+
+
+        }
+        getanykey();
+     }
+};
 class Menu{
 public:
+    void payments(){
+        while(true){
+            system("cls");
+            int choice;
+            cout<<"1.Add new payment"<<endl;
+            cout<<"2.find payment by year"<<endl;
+            cout<<"3.find payment by year and month"<<endl;
+            cout<<"4.find payment by student"<<endl<<endl;
+            cout<<"0. to back"<<endl<<endl;
+
+            cout<<"choice >>";cin>>choice;
+
+            if(choice == 0){
+                break;
+            }else if(choice == 1){
+                Payment pay;
+                pay.addPayment();
+            }else if(choice == 2){
+                Payment pay;
+                pay.findPaymentByYear();
+            }else if(choice == 3){
+                Payment pay;
+                pay.findPaymentByYearAndMonth();
+            }else if(choice == 4){
+                Payment pay;
+                pay.findPaymentByStudent();
+            }
+
+
+
+        }
+    }
+
     void subManage(){
         while(true){
         system("cls");
         int choice;
         cout<<"\n\n 1.add subject \n 2.delete  subject "<<endl;
         cout<<" 3.show all subjects"<<endl;
-        cout<<"\n\n 0.to exit"<<endl;
+        cout<<"\n\n 0.to back"<<endl;
         cout<<"\n\n choice >>";cin>>choice;
         if(choice == 0){
             break;
@@ -235,7 +417,7 @@ public:
         cout<<"\n\n 1.add new student\n 2.find student \n 3.delete student \n 4.update student \n";
         cout<<" 5.add new subject to student\n";
         cout<<" 6.show all student \n ";
-        cout<<"\n\n0.to exit"<<endl;
+        cout<<"\n\n0.to back"<<endl;
         cout<<"\n\n choice >>";cin>>choice;
         if(choice == 0){
             break;
@@ -284,25 +466,13 @@ public:
                 stuManage();
             }else if(choice == 2){
                 subManage();
+            }else if(choice == 3){
+                payments();
             }
         }
     }
 
 };
-
-class Payment(){
-    int year;
-    int month;
-    bool isPay;
-    int stu_id;
-    int sub_id;
-
-    void addPayment(){
-
-    }
-
-};
-
 int main(){
     Menu menu;
     menu.mainMenu();
